@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 <<<<<<< HEAD
+<<<<<<< HEAD
 use App\Http\Controllers\AdminController;
 use App\Models\Forms;
 use App\Models\waiver_forms;
@@ -17,6 +18,9 @@ use App\Http\Controllers\ChartController;
 <<<<<<< HEAD
 >>>>>>> 2d05dc63c9b0de63aa33aa13c7315dc9e0190633
 =======
+=======
+use App\Http\Controllers\ChartController;
+>>>>>>> 015dad485dc23a6f03833fe0fadc3cd3a5c6febf
 
 >>>>>>> 015dad485dc23a6f03833fe0fadc3cd3a5c6febf
 /*
@@ -82,6 +86,7 @@ Route::get('/admin/showData', [App\Http\Controllers\ResidentController::class, '
 
 require __DIR__.'/adminauth.php';
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 //waiver
 Route::get('/create', function(){
@@ -177,6 +182,8 @@ Route::get('/incidents', function () {
 Route::get('/show/incidents', [ShowIncidentsController::class, 'showIncidents'])->name('showincidents')->middleware(['auth', 'verified']);
 
 =======
+=======
+>>>>>>> 015dad485dc23a6f03833fe0fadc3cd3a5c6febf
 //<----------------------------------------------IMPORT ROUTES---------------------------------------------->
 
 //<----Residents
@@ -246,8 +253,11 @@ Route::post('/admin/residentForms/storeTenant', [App\Http\Controllers\ResidentCo
     ->middleware(['auth:admin', 'verified'])
     ->name('admin.residentForms.storeTenant');
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 2d05dc63c9b0de63aa33aa13c7315dc9e0190633
 =======
+=======
+>>>>>>> 015dad485dc23a6f03833fe0fadc3cd3a5c6febf
 
 //<----RESIDENT ARCHIVE ROUTES
 
@@ -280,5 +290,9 @@ Route::delete('pet/{petId}/archive', [App\Http\Controllers\ArchiveController::cl
 
 Route::get('/pet/{archivedPetId}/unarchiveData', [App\Http\Controllers\ArchiveController::class, 'unarchivePet'])
     ->middleware(['auth:admin', 'verified'])
+<<<<<<< HEAD
+    ->name('pet.unarchiveData');
+>>>>>>> 015dad485dc23a6f03833fe0fadc3cd3a5c6febf
+=======
     ->name('pet.unarchiveData');
 >>>>>>> 015dad485dc23a6f03833fe0fadc3cd3a5c6febf
