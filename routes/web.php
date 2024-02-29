@@ -2,15 +2,17 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AdminController;
-use App\Models\Forms;
+use App\Http\Controllers\ChartController;
+use App\Http\Controllers\ResidentController;
+use Illuminate\Support\Facades\Auth;
 use App\Models\waiver_forms;
 use App\Models\Incidents;
 use App\Http\Controllers\ShowController;
-use Illuminate\Support\Facades\Validator; 
-use App\Http\Controllers\CalendarController; 
+use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\IncidentsController;
 use App\Http\Controllers\ShowIncidentsController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -38,16 +40,47 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->middleware(['auth:admin', 'verified'])->name('admin.dashboard');
+Route::middleware(['auth:admin', 'verified'])->group(function () {
+    Route::get('/admin/dashboard', [ChartController::class, 'showCharts'])
+        ->name('admin.dashboard');
+
+    Route::get('/admin/residentForms/{residentId}/editResident', [App\Livewire\EditResident::class, 'editResidentInfo'])
+        ->name('admin.residentForms.editResident');
+});
+
+// NAVBAR ROUTES
+
+Route::middleware(['auth:admin', 'verified'])->prefix('admin')->group(function () {
+    Route::get('/incidentReport', function () {
+        return view('admin.incidentReport');
+    })->name('admin.incidentReport');
+
+    Route::get('/userManagement', function () {
+        return view('admin.userManagement');
+    })->name('admin.userManagement');
+
+    Route::get('/residentForms/createResident', function () {
+        return view('admin.residentForms.createResident');
+    })->name('admin.residentForms.createResident');
+
+    Route::get('/archivedPets', function () {
+        return view('admin.archivedPets');
+    })->name('admin.archivedPets');
+
+    Route::get('/archivedVehicles', function () {
+        return view('admin.archivedVehicles');
+    })->name('admin.archivedVehicles');
+
+    Route::get('/showData', [ResidentController::class, 'index'])
+        ->name('admin.showData');
+});
 
 require __DIR__.'/adminauth.php';
 
-//waiver
-Route::get('/create', function(){
+// Waiver
+Route::get('/create', function () {
     return view('create');
-});
+})->middleware(['auth', 'verified'])->name('create');
 
 Route::post('/create', function () {
     $validator = Validator::make(request()->all(), [
@@ -62,7 +95,7 @@ Route::post('/create', function () {
         return redirect()->back()->withErrors($validator)->withInput();
     }
 
-    $waiver_forms = new waiver_forms(); // Adjust the model class name
+    $waiver_forms = new waiver_forms();
     $waiver_forms->first_name = request('first_name');
     $waiver_forms->last_name = request('last_name');
     $waiver_forms->phone_number = request('phone_number');
@@ -72,37 +105,32 @@ Route::post('/create', function () {
 
     return redirect()->route('dashboard');
 });
-Route::get('/create', function () {
-    return view('create');
-})->middleware(['auth', 'verified'])->name('create');
 
-Route::get('/show', [ShowController::class, 'show']);
 Route::get('/show', function () {
     $user = Auth::user();
-    $data = waiver_forms::where('homeowner_id', $user->id)->orderBy('id', 'desc')->get(); // Define your data here
-    
-    return view('show', compact('data')); // Pass data to the view
+    $data = waiver_forms::where('homeowner_id', $user->id)->orderBy('id', 'desc')->get();
+    return view('show', compact('data'));
 })->middleware(['auth', 'verified'])->name('show');
 
+// Admin Calendar
+Route::middleware(['auth:admin', 'verified'])->prefix('admin')->group(function () {
+    Route::get('calendar/index', [CalendarController::class, 'index'])->name('calendar.index');
+    Route::post('calendar', [CalendarController::class, 'store'])->name('calendar.store');
+    Route::patch('calendar/update/{id}', [CalendarController::class, 'update'])->name('calendar.update');
+    Route::delete('calendar/destroy/{id}', [CalendarController::class, 'destroy'])->name('calendar.destroy');
+});
 
-//admin calender
-Route::get('calendar/index', [CalendarController:: class, 'index'])->name('calendar.index');
-Route::post('calendar', [CalendarController:: class, 'store'])->name('calendar.store');
-Route::patch('calendar/update/{id}', [CalendarController:: class, 'update'])->name('calendar.update');
-Route::delete('calendar/destroy/{id}', [CalendarController:: class, 'destroy'])->name('calendar.destroy');
+// User Calendar
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', [CalendarController::class, 'user'])->name('dashboard');
+});
 
-//user calendar
-Route::get('/dashboard', [CalendarController:: class, 'user'])->name('dashboard');
-
-
-//incident
-Route::get('/incidents', function(){
+// Incidents
+Route::get('/incidents', function () {
     return view('incidents');
 });
 
-
 Route::post('/incidents', function () {
-
     $incidents = new Incidents();
     $incidents->reporter_first_name = request('reporter_first_name');
     $incidents->reporter_last_name = request('reporter_last_name');
@@ -118,22 +146,79 @@ Route::post('/incidents', function () {
     $incidents->save();
 
     return redirect()->route('dashboard');
-});
-
-// Route::get('/showIncidents', function () {
-//     $user = Auth::user();
-//     $incidents_data = Incidents::where('person_behind_incident_block_num', $user->id)->orderBy('id', 'desc')->get(); // Define your data here
-    
-//     return view('show.incidents', compact('incidents_data')); // Pass data to the view
-// })->middleware(['auth', 'verified'])->name('show.incidents');
+})->middleware(['auth', 'verified']);
 
 Route::get('/incidents', function () {
     return view('incidents');
 })->middleware(['auth', 'verified'])->name('incidents');
 
-// Route::get('/showIncidents', function () {
-//     return view('showIncidents');
-// })->middleware(['auth', 'verified'])->name('showIncidents');
-
 Route::get('/show/incidents', [ShowIncidentsController::class, 'showIncidents'])->name('showincidents')->middleware(['auth', 'verified']);
 
+// Import Routes
+
+Route::middleware(['auth:admin', 'verified'])->prefix('resident')->group(function () {
+    Route::get('import', [ResidentController::class, 'index']);
+    Route::post('import', [ResidentController::class, 'importExcelData']);
+
+    Route::get('petImport', [ResidentController::class, 'getPet']);
+    Route::post('petImport', [ResidentController::class, 'importPetExcelData']);
+
+    Route::get('vehicleImport', [ResidentController::class, 'getVehicle']);
+    Route::post('vehicleImport', [ResidentController::class, 'importVehicleExcelData']);
+});
+
+// Additional Info Routes
+
+Route::middleware(['auth:admin', 'verified'])->prefix('admin/resident')->group(function () {
+    Route::get('{residentId}/additionalInfo', [VehicleController::class, 'index'])
+        ->name('admin.resident.additionalInfo');
+
+    Route::get('{homeownerId}/createVehicle', [VehicleController::class, 'createVehicle'])
+        ->name('admin.resident.createVehicle');
+
+    Route::post('storeVehicle', [VehicleController::class, 'storeVehicle'])
+        ->name('admin.resident.storeVehicle');
+
+    Route::get('{homeownerId}/{vehicleId}/editVehicle', [VehicleController::class, 'editVehicle'])
+        ->name('admin.resident.editVehicle');
+
+    Route::put('updateVehicle', [VehicleController::class, 'updateVehicle'])
+        ->name('admin.resident.updateVehicle');
+
+    Route::get('{homeownerId}/createPet', [VehicleController::class, 'createPet'])
+        ->name('admin.resident.createPet');
+
+    Route::post('storePet', [VehicleController::class, 'storePet'])
+        ->name('admin.resident.storePet');
+
+    Route::get('{homeownerId}/{petId}/editPet', [VehicleController::class, 'editPet'])
+        ->name('admin.resident.editPet');
+
+    Route::put('updatePet', [VehicleController::class, 'updatePet'])
+        ->name('admin.resident.updatePet');
+
+    Route::get('{residentId}/residentForms/createTenant', [ResidentController::class, 'createTenant'])
+        ->name('admin.residentForms.createTenant');
+
+    Route::post('storeTenant', [ResidentController::class, 'storeTenant'])
+        ->name('admin.residentForms.storeTenant');
+});
+
+// Archive Routes
+
+Route::middleware(['auth:admin', 'verified'])->group(function () {
+    Route::delete('resident/{residentId}/archive', [ArchiveController::class, 'archiveResident'])
+        ->name('archive.resident');
+
+    Route::get('/admin/archivedData', [ArchiveController::class, 'index'])
+        ->name('admin.archivedData');
+
+    Route::get('vehicle/{archivedVehicleId}/unarchiveData', [ArchiveController::class, 'unarchiveVehicle'])
+        ->name('vehicle.unarchiveData');
+
+    Route::delete('pet/{petId}/archive', [ArchiveController::class, 'archivePet'])
+        ->name('archive.pet');
+
+    Route::get('/pet/{archivedPetId}/unarchiveData', [ArchiveController::class, 'unarchivePet'])
+        ->name('pet.unarchiveData');
+});
