@@ -1,9 +1,8 @@
 <?php
 
+use App\Http\Controllers\AdminWaiverController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-<<<<<<< HEAD
-<<<<<<< HEAD
 use App\Http\Controllers\AdminController;
 use App\Models\Forms;
 use App\Models\waiver_forms;
@@ -13,16 +12,12 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\CalendarController; 
 use App\Http\Controllers\IncidentsController;
 use App\Http\Controllers\ShowIncidentsController;
-=======
 use App\Http\Controllers\ChartController;
-<<<<<<< HEAD
->>>>>>> 2d05dc63c9b0de63aa33aa13c7315dc9e0190633
-=======
-=======
-use App\Http\Controllers\ChartController;
->>>>>>> 015dad485dc23a6f03833fe0fadc3cd3a5c6febf
+use App\Models\Residents;
+use App\Http\Controllers\AdminIncidentController;
+use App\Http\Controllers\HomeownersController;
+use App\Http\Controllers\VehicleInfoController;
 
->>>>>>> 015dad485dc23a6f03833fe0fadc3cd3a5c6febf
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -60,9 +55,16 @@ Route::middleware(['auth:admin', 'verified'])->group(function () {
 
 //<----------------------------------------------NAVBAR ROUTES---------------------------------------------->
 
-Route::get('/admin/incidentReport', function () {
-    return view('admin.incidentReport');
-})->middleware(['auth:admin', 'verified'])->name('admin.incidentReport');
+Route::get('/admin/incidentReport', [AdminIncidentController::class, 'forms'])
+    ->middleware(['auth:admin', 'verified'])
+    ->name('admin.incidentReport');
+Route::post('/admin/forms/updateStatus/{form}', [AdminIncidentController::class, 'updateStatus'])->name('admin.forms.updateStatus');
+
+Route::get('/admin/waiverForm', [AdminWaiverController::class, 'forms'])
+    ->middleware(['auth:admin', 'verified'])
+    ->name('admin.waiverForm');
+Route::post('/admin/waiverForms/updateStatus/{form}', [AdminWaiverController::class, 'updateStatus'])->name('admin.waiverForms.updateStatus');
+
 
 Route::get('/admin/userManagement', function () {
     return view('admin.userManagement');
@@ -80,24 +82,29 @@ Route::get('/admin/archivedVehicles', function () {
     return view('admin.archivedVehicles');
 })->middleware(['auth:admin', 'verified'])->name('admin.archivedVehicles');
 
+Route::get('/admin/import', function () {
+    return view('admin.import');
+})->middleware(['auth:admin', 'verified'])->name('admin.import');
+
 Route::get('/admin/showData', [App\Http\Controllers\ResidentController::class, 'index'])
     ->middleware(['auth:admin', 'verified'])
     ->name('admin.showData');
 
+
 require __DIR__.'/adminauth.php';
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 //waiver
 Route::get('/create', function(){
     return view('create');
 });
 
 Route::post('/create', function () {
+
     $validator = Validator::make(request()->all(), [
         'first_name' => 'required|string|max:255',
         'last_name' => 'required|string|max:255',
-        'phone_number' => 'required|string|max:20',
+        'phone_number' => 'required|numeric|max:20',
         'description' => 'required|string',
         'homeowner_id' => 'required|numeric',
     ]);
@@ -105,32 +112,54 @@ Route::post('/create', function () {
     if ($validator->fails()) {
         return redirect()->back()->withErrors($validator)->withInput();
     }
+    // Retrieve the currently authenticated user
+    $user = Auth::user();
+    $resident = Residents::where('email', $user->email)->firstOrFail();
+    // Check payment status and violation
+    if ($resident->payment_status == 'paid' && $resident->violation == 'no') {
+        // Create a new waiver_forms instance and assign the user_id
+        $waiver_forms = new waiver_forms(); // Adjust the model class name
+        $waiver_forms->first_name = request('first_name');
+        $waiver_forms->last_name = request('last_name');
+        $waiver_forms->phone_number = request('phone_number');
+        $waiver_forms->description = request('description');
+        $waiver_forms->homeowner_id = request('homeowner_id');
+        $waiver_forms->user_id = $user->id; // Assign the user_id
+        $waiver_forms->save();
 
-    $waiver_forms = new waiver_forms(); // Adjust the model class name
-    $waiver_forms->first_name = request('first_name');
-    $waiver_forms->last_name = request('last_name');
-    $waiver_forms->phone_number = request('phone_number');
-    $waiver_forms->description = request('description');
-    $waiver_forms->homeowner_id = request('homeowner_id');
-    $waiver_forms->save();
-
-    return redirect()->route('dashboard');
+        // Redirect to the 'show' route instead of 'dashboard'
+        return redirect()->route('show');
+    } else {
+        // Redirect back with appropriate status messages
+        if ($resident->payment_status == 'unpaid' && $resident->violation == 'yes') {
+    		return redirect()->back()->with('status', 'You have both unpaid status and a violation. Please address the issues.');
+	} elseif ($resident->violation == 'yes') {
+    		return redirect()->back()->with('status', 'You currently have a violation. Please contact the admin for further assistance.');
+	} elseif ($resident->payment_status == 'unpaid') {
+   		return redirect()->back()->with('status', 'You are currently unpaid. Unable to send waiver');
+	} 
+    }
 });
+
 Route::get('/create', function () {
     return view('create');
 })->middleware(['auth', 'verified'])->name('create');
 
 Route::get('/show', [ShowController::class, 'show']);
 Route::get('/show', function () {
+    // Retrieve the currently authenticated user
     $user = Auth::user();
-    $data = waiver_forms::where('homeowner_id', $user->id)->orderBy('id', 'desc')->get(); // Define your data here
     
-    return view('show', compact('data')); // Pass data to the view
-})->middleware(['auth', 'verified'])->name('show');
+    // Retrieve the submitted data associated with the currently logged-in user
+    $data = $user->waiver_forms()->orderBy('id', 'desc')->get();
+    
+    // Pass the retrieved data to the 'show' view
+    return view('show', compact('data'));
+})->middleware(['auth', 'verified'])->name('show'); 
 
 
 //admin calender
-Route::get('calendar/index', [CalendarController:: class, 'index'])->name('calendar.index');
+Route::get('/admin/calendar', [CalendarController::class, 'index'])->name('admin.calendar');
 Route::post('calendar', [CalendarController:: class, 'store'])->name('calendar.store');
 Route::patch('calendar/update/{id}', [CalendarController:: class, 'update'])->name('calendar.update');
 Route::delete('calendar/destroy/{id}', [CalendarController:: class, 'destroy'])->name('calendar.destroy');
@@ -144,10 +173,13 @@ Route::get('/incidents', function(){
     return view('incidents');
 });
 
-
 Route::post('/incidents', function () {
+    // Retrieve the currently authenticated user
+    $user = Auth::user();
 
+    // Create a new Incidents instance and set the user_id
     $incidents = new Incidents();
+    $incidents->user_id = $user->id; // Set the user_id
     $incidents->reporter_first_name = request('reporter_first_name');
     $incidents->reporter_last_name = request('reporter_last_name');
     $incidents->reporter_phone_number = request('reporter_phone_number');
@@ -163,6 +195,7 @@ Route::post('/incidents', function () {
 
     return redirect()->route('dashboard');
 });
+
 
 // Route::get('/showIncidents', function () {
 //     $user = Auth::user();
@@ -181,9 +214,7 @@ Route::get('/incidents', function () {
 
 Route::get('/show/incidents', [ShowIncidentsController::class, 'showIncidents'])->name('showincidents')->middleware(['auth', 'verified']);
 
-=======
-=======
->>>>>>> 015dad485dc23a6f03833fe0fadc3cd3a5c6febf
+
 //<----------------------------------------------IMPORT ROUTES---------------------------------------------->
 
 //<----Residents
@@ -245,6 +276,8 @@ Route::put('/admin/resident/updatePet', [App\Http\Controllers\VehicleController:
 
 //<----TENANTS
 
+Route::get('/getTenantDetails/{residentId}', [App\Http\Controllers\ResidentController::class, 'getDetails']);
+
 Route::get('/admin/{residentId}/residentForms/createTenant', [App\Http\Controllers\ResidentController::class, 'createTenant'])
     ->middleware(['auth:admin', 'verified'])
     ->name('admin.residentForms.createTenant');
@@ -252,12 +285,6 @@ Route::get('/admin/{residentId}/residentForms/createTenant', [App\Http\Controlle
 Route::post('/admin/residentForms/storeTenant', [App\Http\Controllers\ResidentController::class, 'storeTenant'])
     ->middleware(['auth:admin', 'verified'])
     ->name('admin.residentForms.storeTenant');
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> 2d05dc63c9b0de63aa33aa13c7315dc9e0190633
-=======
-=======
->>>>>>> 015dad485dc23a6f03833fe0fadc3cd3a5c6febf
 
 //<----RESIDENT ARCHIVE ROUTES
 
@@ -290,9 +317,6 @@ Route::delete('pet/{petId}/archive', [App\Http\Controllers\ArchiveController::cl
 
 Route::get('/pet/{archivedPetId}/unarchiveData', [App\Http\Controllers\ArchiveController::class, 'unarchivePet'])
     ->middleware(['auth:admin', 'verified'])
-<<<<<<< HEAD
     ->name('pet.unarchiveData');
->>>>>>> 015dad485dc23a6f03833fe0fadc3cd3a5c6febf
-=======
-    ->name('pet.unarchiveData');
->>>>>>> 015dad485dc23a6f03833fe0fadc3cd3a5c6febf
+
+Route::get('/about', [HomeownersController::class, 'about'])->name('about');

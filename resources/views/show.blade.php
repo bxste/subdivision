@@ -1,3 +1,4 @@
+<!-- show.blade.php //waiver -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,6 +24,7 @@
             <th class="py-2 px-4 border-b">Last Name</th>
             <th class="py-2 px-4 border-b">Phone Number</th>
             <th class="py-2 px-4 border-b">Description</th>
+            <th class="py-2 px-4 border-b">Status</th>
           </tr>
         </thead>
         <tbody>
@@ -33,6 +35,7 @@
               <td class="py-6 px-8 border-b text-center">{{$data->last_name}}</td>
               <td class="py-6 px-8 border-b text-center">{{$data->phone_number}}</td>
               <td class="py-6 px-8 border-b text-center">{{$data->description}}</td>
+              <td class="py-6 px-8 border-b text-center">{{$data->status}}</td>
           </tr>
           @endforeach
           <!-- Add more rows as needed -->

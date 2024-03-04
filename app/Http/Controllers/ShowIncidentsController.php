@@ -12,7 +12,7 @@ class ShowIncidentsController extends Controller
     {
         if(Auth::check()) {
             $user = Auth::user();
-            $incidents_data = Incidents::where('person_behind_incident_block_num', $user->id)->orderBy('id', 'desc')->get();
+            $incidents_data = $user->Incidents()->orderBy('id', 'desc')->get();
             return view('showIncidents', compact('incidents_data'));
         } else {
             // Redirect to a different route if the user is not authenticated

@@ -15,17 +15,23 @@
                 </div>
                 <script>
                     // Fetch data from the backend (Laravel Blade)
-                    const residentsData = @json($residentsData);
+const residentsData = @json($residentsData);
 
-                    // Prepare data for the pie chart
-                    const data = {
-                        labels: ['Acknowledged', 'Not Acknowledged', 'Disabled', 'Enabled'],
-                        datasets: [{
-                            data: Object.values(residentsData),
-                            backgroundColor: ['#A5D8DD', '#EA6A47', '#0091D5', '#202020'],
-                            hoverBackgroundColor: ['#A5D8DD', '#EA6A47', '#0091D5', '#202020'],
-                        }],
-                    };
+// Prepare data for the pie chart
+const data = {
+    labels: ['Acknowledged', 'Not Acknowledged', 'Disabled', 'Enabled'],
+    datasets: [{
+        data: [
+            residentsData.acknowledged_rules,
+            residentsData.not_acknowledged_rules,
+            residentsData.without_disability,
+            residentsData.with_disability
+        ],
+        backgroundColor: ['#A5D8DD', '#EA6A47', '#0091D5', '#202020'],
+        hoverBackgroundColor: ['#A5D8DD', '#EA6A47', '#0091D5', '#202020'],
+    }],
+};
+
 
                     // Get the pie chart canvas
                     const ctx = document.getElementById('pieChart').getContext('2d');
@@ -164,4 +170,5 @@
             </div>
         </div>
     </div>
+    
 </x-adminApp-layout>

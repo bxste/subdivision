@@ -51,6 +51,10 @@
                                         <label for="household_size" class="block mb-2 text-sm text-gray-600">Occupants</label>
                                         <input type="number" name="household_size" id="household_size" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500" min="1" max="10" required>
                                     </div>
+                                    <div class="mb-4 flex-1">
+                                        <label for="relationship_to_homeowner" class="block mb-2 text-sm text-gray-600">Relationship to Owner</label>
+                                        <input type="text" name="relationship_to_homeowner" id="relationship_to_homeowner" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500" min="1" max="10" required>
+                                    </div>
                                 </div>
 
                                 <div class="mb-4">
@@ -86,14 +90,6 @@
                                         <select id="acknowledgement_on_community_rules" name="acknowledgement_on_community_rules" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500" required>
                                             <option value="yes">Yes</option>
                                             <option value="no">No</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="mb-4 flex-1">
-                                        <label for="payment_status" class="block mb-2 text-sm text-gray-600">Payment Status</label>
-                                        <select id="payment_status" name="payment_status" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500" required>
-                                            <option value="paid">Paid</option>
-                                            <option value="unpaid">Unpaid</option>
                                         </select>
                                     </div>
 

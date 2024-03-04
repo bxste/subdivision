@@ -20,7 +20,7 @@ class CalendarController extends Controller
             ];
         }
 
-        return view('index', ['events' => $events]);
+        return view('admin.calendar', ['events' => $events]);
     }
     public function user()
     {

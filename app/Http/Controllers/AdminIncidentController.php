@@ -9,7 +9,7 @@ class AdminIncidentController extends Controller
 {
     public function forms(){
         $forms = Incidents::orderBy('id', 'desc')->get(); // Corrected model class name
-        return view('admin.incident', compact('forms'));
+        return view('admin.incidentReport', compact('forms'));
     }
 
     public function updateStatus(Request $request, Incidents $form){ // Corrected model class name

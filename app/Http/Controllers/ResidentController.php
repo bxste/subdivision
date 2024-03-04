@@ -15,6 +15,7 @@ class ResidentController extends Controller
 {
     public function index()
     {   
+
         $residents = Residents::all();
         return view('admin.showData', compact('residents'));
     }
@@ -33,6 +34,13 @@ class ResidentController extends Controller
         return redirect()->back();
     }
 
+    public function getDetails($residentId) {
+        // Fetch all tenant details based on $residentId
+        $tenantDetails = Residents::where('homeowner_id', $residentId)->get();
+        return response()->json($tenantDetails);
+    }    
+
+    
 //<----Pets
     public function getPet()
     {   
@@ -92,30 +100,13 @@ class ResidentController extends Controller
             $block = $resident->block;
             $lot = $resident->lot;
             $street = $resident->street;
-            $payment_status = $resident->payment_status;
-
-            $data = $request->validate([
-                'first_name' => 'required',
-                'middle_initial' => 'required',
-                'last_name' => 'required',
-                'relationship_to_homeowner' => 'required',
-                'religion' => 'required',
-                'email' => 'required',
-                'phone_number' => 'required',
-                'household_size' => 'required',
-                'occupation' => 'required',
-                'acknowledgement_on_community_rules' => 'required',
-                'disability' => 'required',
-                'gender' => 'required',
-                'violation' => 'required',
-            ]);
-
+            
+            $data = $request->all();
             $data['homeowner_id'] = $homeownerId;
             $data['block'] = $block;
             $data['lot'] = $lot;
             $data['street'] = $street;
             $data['status'] = 'tenant';
-            $data['payment_status'] = $payment_status;
             Residents::create($data);
 
             return redirect()->route('admin.showData');

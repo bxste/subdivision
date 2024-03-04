@@ -1,8 +1,6 @@
 @import "tailwindcss/base";
 @import "tailwindcss/components";
-<<<<<<< HEAD
 @import "tailwindcss/utilities";
-=======
 @import "tailwindcss/utilities";
 
 .form-container {
@@ -26,4 +24,3 @@
   border-radius: 5px;
   color: #155724;
 }
->>>>>>> 015dad485dc23a6f03833fe0fadc3cd3a5c6febf

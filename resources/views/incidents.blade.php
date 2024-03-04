@@ -31,12 +31,12 @@
                 <!-- 4 -->
                 <div class="col-span-6 sm:col-span-3">
                     <label for="reporter_block_num" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Homeowner ID</label>
-                    <input type="number" name="reporter_block_num" id="reporter_block_num" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="e.g. 12345" >
+                    <input type="number" name="reporter_block_num" id="reporter_block_num" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="e.g. 001" >
                 </div>
                 <!-- 5 -->
                 <div class="col-span-6">
                     <label for="incident_details" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Incident Details</label>
-                    <textarea id="incident_details" name="incident_details" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="👨‍💻Full-stack web developer. Open-source contributor."></textarea>
+                    <textarea id="incident_details" name="incident_details" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Traffic Accident - At approximately 2:00 PM, a traffic accident occurred at the intersection of Pine Street and Oak Avenue in Willow Creek Village. "></textarea>
                 </div> 
                 <!-- 6 -->
                 <div class="col-span-6 sm:col-span-3">
@@ -46,7 +46,7 @@
                 <!-- 7 -->
                 <div class="col-span-6 sm:col-span-3">
                     <label for="incident_type" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Incident Type</label>
-                    <input type="text" name="incident_type" id="incident_type" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="e.g. Theft">
+                    <input type="text" name="incident_type" id="incident_type" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="e.g. Traffic Accident">
                 </div>
                 <!-- 8 -->
                 <div class="col-span-6 sm:col-span-3">
@@ -69,7 +69,7 @@
                     <input type="time" name="incident_time" id="incident_time" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" >
                 </div>
                 <div class="">
-                    <button class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-6 rounded-lg " type="submit">Submit</button>
+                    <button class="bg-gray-800 hover:bg-gray-900 text-white py-2 px-6 rounded-lg" type="submit">Submit</button>
                 </div>
             </div>
         </form>

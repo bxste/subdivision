@@ -1,14 +1,21 @@
 <div class="container mx-auto">
     <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2 mb-4">
-        <input type="text" wire:model.live="search" class="w-full md:w-auto px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500" placeholder="Search...">
+    <input type="text" wire:model.live="search" class="w-full md:w-auto px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500" placeholder="Search...">
 
-        <select wire:model.live="pagination" class="w-full md:w-auto px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500 mt-2 md:mt-0">
+    <div class="flex items-center">
+        <select wire:model.live="pagination" class="w-full md:w-auto px-4 py-2 border rounded-md focus:outline-none focus:border-blue-500 ">
             <option value="10">10</option>
             <option value="20">20</option>
             <option value="50">50</option>
             <option value="100">100</option>
         </select>
+
+        <a href="{{ route('admin.residentForms.createResident') }}" class="ml-2 inline-block bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+            INSERT RESIDENT RECORD
+        </a>
     </div>
+</div>
+
 
     <div class="overflow-x-auto">
         <table class="mx-auto border-collapse border border-gray-300 w-full">
@@ -28,11 +35,13 @@
                     <th class="px-4 py-2 text-left">Status</th>
 
                     <th class="px-4 py-2 text-left">Payment Status</th>
+                    <th class="px-4 py-2 text-left">More</th>
                     <th class="px-4 py-2 text-left">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($residents as $resident)
+                @if($resident->status != 'tenant')
                     <tr class="border-b border-gray-300" >
                         <td class="p-4">{{ $resident->first_name }} {{ $resident->middle_initial }} {{ $resident->last_name }}</td>
                         <td class="p-4">Blk. {{ $resident->block }} lot {{ $resident->lot }} {{ $resident->street }} st.</td>
@@ -49,7 +58,12 @@
                                 {{ $resident->payment_status }}
                             </button>
                         </td>
-
+                        <td>
+                            <button class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded" onclick="toggleDetails({{ $loop->index }}, '{{ $resident->id }}', '{{ $resident->homeowner_id }}')">
+                                Tenants
+                            </button>
+                        </td>
+                        
                         <td class="p-4">
                             <div class="relative inline-block text-gray-700 hover:text-gray-900 group">
                                 <a href="{{ route('admin.residentForms.editResident', $resident->id) }}" class="inline-block">
@@ -62,7 +76,7 @@
                                 </div>
                             </div>
 
-                            @if($resident->status != 'tenant')
+                            
                                 <a href="{{ route('admin.residentForms.createTenant', ['residentId' => $resident->id]) }}" class="inline-block text-gray-700 hover:text-gray-900 group relative">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
@@ -71,7 +85,7 @@
                                         Add Tenant
                                     </div>
                                 </a>
-                            @endif
+                            
 
 
                             <a href="{{ route('admin.resident.additionalInfo', ['residentId' => $resident->id]) }}" class="inline-block text-gray-700 hover:text-gray-900 group relative">
@@ -98,6 +112,16 @@
 
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                        <div id="details_{{ $loop->index }}" class="hidden ">
+                        
+                        </div>
+                        </td>
+                    
+                    </tr>
+                    
+                    @endif
                 @endforeach
             </tbody>
         </table>
@@ -107,3 +131,52 @@
         {{ $residents->links() }}
     </div>
 </div>
+<script>
+function toggleDetails(index, residentId, homeownerId) {
+    var detailsRow = document.getElementById('details_' + index);
+    detailsRow.classList.toggle('hidden');
+    if (!detailsRow.classList.contains('hidden')) {
+        fetchTenantDetails(residentId, homeownerId, index);
+    }
+}
+
+function fetchTenantDetails(residentId, homeownerId, index) {
+    // Make an AJAX request to fetch tenant details
+    fetch('/getTenantDetails/' + residentId)
+    .then(response => response.json())
+    .then(data => {
+        var detailsDiv = document.getElementById('details_' + index);
+        // Clear existing content
+        detailsDiv.innerHTML = '';
+
+        // Create a grid layout
+        detailsDiv.innerHTML += `<div class="grid grid-cols-2 gap-4">`;
+
+        // Iterate over each tenant's details
+        data.forEach((tenant, i) => {
+            // Update the detailsDiv with each tenant's details
+            detailsDiv.innerHTML += `
+                <div class="bg-gray-100 px-4 py-2 border-b border-gray-300 grid grid-cols-2">
+                    <strong>Full Name:</strong> ${tenant.first_name} ${tenant.middle_initial} ${tenant.last_name}<br>
+                    <strong>Block:</strong> ${tenant.block}<br>
+                    <strong>Lot:</strong> ${tenant.lot}<br>
+                    <strong>Street:</strong> ${tenant.street}<br>
+                    <strong>Relationship to homeowner:</strong> ${tenant.relationship_to_homeowner}<br>
+                    <strong>Religion:</strong> ${tenant.religion}<br>
+                    <strong>Email:</strong> ${tenant.email}<br>
+                    <strong>Phone Number:</strong> ${tenant.phone_number}<br>
+                    <strong>Disability:</strong> ${tenant.disability}<br>
+                    <strong>Violation:</strong> ${tenant.violation}<br>
+                    <strong>Acknowledgement On Community Rules:</strong> ${tenant.acknowledgement_on_community_rules}
+                </div>
+                <hr>
+            `;
+        });
+
+        // Close the grid layout
+        detailsDiv.innerHTML += `</div>`;
+    })
+    .catch(error => console.error('Error fetching tenant details:', error));
+}
+
+</script>

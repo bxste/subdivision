@@ -16,10 +16,10 @@ class ChartController extends Controller
                 SUM(CASE WHEN disability = "n/a" THEN 1 ELSE 0 END) as without_disability,
                 SUM(CASE WHEN disability != "n/a" THEN 1 ELSE 0 END) as with_disability,
                 SUM(CASE WHEN gender = "Male" THEN 1 ELSE 0 END) as male_count,
-                SUM(CASE WHEN gender = "Female" THEN 1 ELSE 0 END) as female_count,
-                COUNT(*) as total_residents
+                SUM(CASE WHEN gender = "Female" THEN 1 ELSE 0 END) as female_count
             ')
             ->first();
+
 
         // Fetch additional data for the bar graph (example: household sizes in different blocks)
         $barGraphData = Residents::selectRaw('

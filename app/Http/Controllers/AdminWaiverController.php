@@ -9,7 +9,7 @@ class AdminWaiverController extends Controller
 {
     public function forms(){
         $forms = waiver_forms::orderBy('id', 'desc')->get(); // Corrected model class name
-        return view('admin.forms', compact('forms'));
+        return view('admin.waiverForm', compact('forms'));
     }
 
     public function updateStatus(Request $request, waiver_forms $form){ // Corrected model class name

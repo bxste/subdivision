@@ -25,4 +25,8 @@ class Vehicles extends Model
         'plate_number',
         'sticker_number',
     ];
+    public function homeowner()
+    {
+        return $this->belongsTo(Homeowners::class);
+    }
 }
