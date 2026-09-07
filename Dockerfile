@@ -1,9 +1,40 @@
 # ============================================================
 # Stage 1: Install PHP dependencies
 # ============================================================
-FROM composer:2 AS composer
+FROM php:8.3-cli-bookworm AS composer
 
 WORKDIR /app
+
+# Install Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Install dependencies required by Composer packages
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libzip-dev \
+    libpng-dev \
+    libjpeg62-turbo-dev \
+    libfreetype6-dev \
+    libonig-dev \
+    libxml2-dev \
+    libpq-dev \
+    && docker-php-ext-configure gd \
+        --with-freetype \
+        --with-jpeg \
+    && docker-php-ext-install \
+        pdo \
+        pdo_mysql \
+        pdo_pgsql \
+        mbstring \
+        exif \
+        pcntl \
+        bcmath \
+        gd \
+        zip \
+        xml \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY composer.json composer.lock ./
 
@@ -96,6 +127,5 @@ RUN php artisan config:clear || true \
     && php artisan route:clear || true \
     && php artisan view:clear || true
 
-# Render provides the PORT environment variable.
-# Laravel will listen on 0.0.0.0 so Render can access it.
+# Render provides the PORT environment variable
 CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
