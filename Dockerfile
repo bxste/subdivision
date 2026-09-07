@@ -1,3 +1,4 @@
+```dockerfile
 # ============================================================
 # Stage 1: Install PHP dependencies
 # ============================================================
@@ -8,7 +9,8 @@ WORKDIR /app
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Install dependencies required by Composer packages
+# Install system dependencies and PHP extensions required
+# by Laravel and Composer packages
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -36,8 +38,10 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy Composer files
 COPY composer.json composer.lock ./
 
+# Install PHP dependencies
 RUN composer install \
     --no-dev \
     --no-interaction \
@@ -53,16 +57,19 @@ FROM node:22-bookworm-slim AS frontend
 
 WORKDIR /app
 
+# Copy npm files first for Docker layer caching
 COPY package.json package-lock.json ./
 
+# Install frontend dependencies
 RUN npm ci
 
+# Copy frontend source files
 COPY resources ./resources
 COPY public ./public
 COPY vite.config.* ./
 COPY postcss.config.* ./
-COPY tailwind.config.* ./ 2>/dev/null || true
 
+# Build Vite assets
 RUN npm run build
 
 
@@ -113,7 +120,7 @@ COPY --from=composer /app/vendor ./vendor
 # Copy compiled Vite assets from Stage 2
 COPY --from=frontend /app/public/build ./public/build
 
-# Laravel storage permissions
+# Create Laravel storage directories and set permissions
 RUN mkdir -p \
     storage/framework/cache \
     storage/framework/sessions \
@@ -122,10 +129,12 @@ RUN mkdir -p \
     bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Laravel optimizations
+# Clear Laravel caches
 RUN php artisan config:clear || true \
     && php artisan route:clear || true \
     && php artisan view:clear || true
 
 # Render provides the PORT environment variable
+# Laravel listens on all interfaces so Render can access it
 CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
+```
