@@ -1,4 +1,3 @@
-```dockerfile
 # ============================================================
 # Stage 1: Install PHP dependencies
 # ============================================================
@@ -137,4 +136,3 @@ RUN php artisan config:clear || true \
 # Render provides the PORT environment variable
 # Laravel listens on all interfaces so Render can access it
 CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
-```
